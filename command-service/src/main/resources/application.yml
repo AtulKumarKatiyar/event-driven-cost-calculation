@@ -1,0 +1,52 @@
+server:
+  port: ${SERVER_PORT:8081}
+  error:
+    include-message: always
+spring:
+  application:
+    name: command-service
+  mvc:
+    problemdetails:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/cost_calculation}
+    username: ${DB_USERNAME:command_app}
+    password: ${DB_PASSWORD:command_app_local}
+    hikari:
+      connection-init-sql: SET search_path TO command
+  flyway:
+    default-schema: command
+    schemas: command
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${spring.application.name}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+    listener:
+      ack-mode: record
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 30000
+        request.timeout.ms: 10000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+calculation:
+  currency: ${CALCULATION_CURRENCY:INR}
+  deadline-seconds: ${CALCULATION_DEADLINE_SECONDS:60}
+  outbox-delay-ms: 500

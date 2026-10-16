@@ -1,0 +1,43 @@
+server:
+  port: ${SERVER_PORT:8083}
+  error:
+    include-message: always
+spring:
+  application:
+    name: first-cost-service
+  mvc:
+    problemdetails:
+      enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${spring.application.name}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+    listener:
+      ack-mode: record
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 30000
+        request.timeout.ms: 10000
+      transaction-id-prefix: ${spring.application.name}-${INSTANCE_ID:${random.uuid}}-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+cost:
+  unit-rate: ${COST_UNIT_RATE:100.00}
+  demo-failures: ${DEMO_FAILURES:false}

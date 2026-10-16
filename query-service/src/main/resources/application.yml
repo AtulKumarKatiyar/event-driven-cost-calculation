@@ -1,0 +1,26 @@
+server:
+  port: ${SERVER_PORT:8082}
+  error:
+    include-message: always
+spring:
+  application:
+    name: query-service
+  mvc:
+    problemdetails:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/cost_calculation}
+    username: ${DB_USERNAME:query_app}
+    password: ${DB_PASSWORD:query_app_local}
+    hikari:
+      connection-init-sql: SET search_path TO read_model
+      read-only: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
